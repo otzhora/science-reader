@@ -14,4 +14,3 @@ COPY . /api
 WORKDIR /api
 
 EXPOSE 5000
-ENTRYPOINT [ "python", "main.py" ]
