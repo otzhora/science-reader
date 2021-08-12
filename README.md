@@ -1,3 +1,5 @@
+[![api style and tests](https://github.com/otzhora/science-reader/actions/workflows/api-workflow.yml/badge.svg)](https://github.com/otzhora/science-reader/actions/workflows/api-workflow.yml)
+t
 # This is my graduation assignment from the python course 
 
 ## How to run this 
