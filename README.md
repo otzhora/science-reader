@@ -7,6 +7,7 @@
 First, run this
 
 ```
+cp .env.example .env
 docker-compose up --build
 ```
 
