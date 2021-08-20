@@ -12,6 +12,19 @@ services:
     ports:
       - "5432:5432"
 
+  migrations:
+    container_name: migrations
+    env_file:
+      - .env
+    build:
+      context: ./api/
+      dockerfile: Dockerfile
+    command: sh -c "alembic upgrade head"
+    volumes:
+      - ./api:/api
+    depends_on:
+      - postgres
+
   api:
     container_name: gradapi
     restart: always
@@ -20,13 +33,14 @@ services:
     build:
       context: ./api/
       dockerfile: Dockerfile
-    command: sh -c "alembic upgrade head && python main.py"
+    command: sh -c "python main.py"
     ports:
       - 5000:5000
     volumes:
       - ./api:/api
     depends_on:
       - postgres
+      - migrations
 
 volumes:
   flask-app-db:
