@@ -8,6 +8,7 @@ First, run this
 
 ```
 cp .env.example .env
+docker-compose run api python3 init_database.py
 docker-compose up --build
 ```
 
