@@ -1,9 +1,25 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Boolean, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Boolean, Integer, String, ForeignKey
 
 
 Base = declarative_base()
+
+
+UserModerators = Table("userModerators",
+                       Base.metadata,
+                       Column("user_id", Integer, ForeignKey("users.id")),
+                       Column("section_id", Integer, ForeignKey("sections.id")))
+
+SectionArticles = Table("sectionArticles",
+                        Base.metadata,
+                        Column("section_id", Integer, ForeignKey("sections.id")),
+                        Column("article_id", Integer, ForeignKey("articles.id")))
+
+TagArticles = Table("tagArticles",
+                    Base.metadata,
+                    Column("tag_id", Integer, ForeignKey("tags.id")),
+                    Column("article_id", Integer, ForeignKey("articles.id")))
 
 
 class User(Base):
@@ -11,6 +27,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String)
+    password = Column(String)
 
 
 class Section(Base):
@@ -20,20 +37,11 @@ class Section(Base):
     name = Column(String(64))
     moderated = Column(Boolean)
     premium = Column(Boolean)
-    subsection_id = Column(Integer, ForeignKey("sections.id"))
+    parent_section_id = Column(Integer, ForeignKey("sections.id"))
 
+    moderators = relationship("User", secondary=UserModerators, backref="moderates")
+    articles = relationship("Article", secondary=SectionArticles, backref="sections")
     subsections = relationship("Section")
-
-
-class Moderator(Base):
-    __tablename__ = "moderators"
-
-    id = Column(Integer, primary_key=True, index=True)
-    section_id = Column(Integer, ForeignKey("sections.id"))
-    user_id = Column(Integer, ForeignKey("users.id"))
-
-    section = relationship("Section", back_populates="moderators")
-    users = relationship("User", back_populates="moderators")
 
 
 class Tag(Base):
@@ -41,19 +49,15 @@ class Tag(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(64))
-    paper_id = Column(Integer, ForeignKey("papers.id"))
-
-    paper = relationship("Paper", back_populates="tags")
 
 
-class Paper(Base):
-    __tablename__ = "papers"
+class Article(Base):
+    __tablename__ = "articles"
 
     id = Column(Integer, primary_key=True, index=True)
     content = Column(String(2048))
-    section_id = Column(Integer, ForeignKey("sections.id"))
 
-    section = relationship("Section", back_populates="papers")
+    tags = relationship("Tag", secondary=TagArticles, backref="articles")
 
 
 class Comment(Base):
@@ -61,8 +65,8 @@ class Comment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     content = Column(String(256))
-    user_id = Column(Integer, ForeignKey("users.id"))
-    responses_id = Column(Integer, ForeignKey("comments.id"))
+    response_id = Column(Integer, ForeignKey("comments.id"))
+    article_id = Column(Integer, ForeignKey("articles.id"))
 
-    users = relationship("User", back_populates="moderators")
+    article = relationship("Article", backref="comments")
     responses = relationship("Comment")
