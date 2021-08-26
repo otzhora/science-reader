@@ -8,8 +8,9 @@ First, run this
 
 ```
 cp .env.example .env
-docker-compose run api python3 init_database.py
-docker-compose up --build
+docker-compose build
+docker-compose run api flask init-db
+docker-compose up 
 ```
 
 Now somewhere (hopefully on localhost) on port 5000 is cozy

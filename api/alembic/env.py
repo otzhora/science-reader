@@ -18,9 +18,9 @@ config = context.config
 config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
 fileConfig(config.config_file_name)
 
-import models
+import reader_api.models
 
-target_metadata = models.Base.metadata
+target_metadata = reader_api.models.Base.metadata
 
 
 def run_migrations_offline():

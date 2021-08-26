@@ -1,15 +1,8 @@
-import os
+import click
+from sqlalchemy.exc import SQLAlchemyError
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
-
-from models import Base, Section
-
-
-engine = create_engine(os.environ['DATABASE_URL'])
-Base.metadata.create_all(engine)
-session = sessionmaker(bind=engine)()
+from reader_api.models import Section
+from reader_api.db import connect_to_db
 
 
 initialSections = [
@@ -75,22 +68,23 @@ subsections = [
 ]
 
 
-for section in initialSections:
-    # sectionObject = Section(name=section["name"], moderated=section["moderated"], premium=section["premium"])
-    oSection = Section(**section)
-    session.add(oSection)
+@click.command('init-db')
+@connect_to_db
+def init_db(db_session):
+    click.echo("Initializing db")
+    oSections = {section["name"]: Section(**section) for section in initialSections}
 
-session.commit()
+    for oSection in oSections.values():
+        db_session.add(oSection)
+    db_session.flush()
 
-for subsection in subsections:
-    try:
-        parent = session.query(Section).filter(Section.name.like(subsection["parent"])).one()
-        child = session.query(Section).filter(Section.name.like(subsection["child"])).one()
-
-        parent.subsections.append(child)
-    except (MultipleResultsFound, NoResultFound) as e:
-        print(e)
-        print("Erorr: database initiated incorrectly. Clear it and start again")
-        exit()
-
-session.commit()
+    for subsection in subsections:
+        try:
+            child = oSections[subsection["child"]]
+            parent = oSections[subsection["parent"]]
+            db_session.refresh(child)
+            db_session.refresh(parent)
+            parent.subsections.append(child)
+        except SQLAlchemyError:
+            click.echo("Erorr: database initiated incorrectly. Clear it and start again")
+            exit()

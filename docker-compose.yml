@@ -33,7 +33,7 @@ services:
     build:
       context: ./api/
       dockerfile: Dockerfile
-    command: sh -c "python main.py"
+    command: sh -c "flask run --host=0.0.0.0"
     ports:
       - 5000:5000
     volumes:
