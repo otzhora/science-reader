@@ -31,7 +31,7 @@ def register(db_session):
             return f"Username {username} is taken", 400
 
         db_session.add(User(username=username, password=generate_password_hash(password)))
-        return "Registration is succ"
+        return "Registration is successfuly"
     except SQLAlchemyError as e:
         return f"Error has occured: {e}", 500
 
@@ -73,7 +73,7 @@ def load_user(db_session):
 @bp.route("logout")
 def logout():
     session.clear()
-    return "Logged out succ"
+    return "Logged out successfuly"
 
 
 def login_required(f):
@@ -81,6 +81,5 @@ def login_required(f):
     def inner(*args, **kwargs):
         if g.user is None:
             return "You are not logged in", 400
-
         return f(*args, **kwargs)
-    return f
+    return inner

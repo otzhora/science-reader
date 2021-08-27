@@ -14,7 +14,7 @@ def connect_to_db(f):
     def inner(*args, **kwargs):
         db_session = Session()
         try:
-            rv = f(*args, db_session, **kwargs)
+            rv = f(*args, db_session=db_session, **kwargs)
             db_session.commit()
         except Exception as e:
             print(f"Exception has occured: {e}")

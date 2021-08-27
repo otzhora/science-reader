@@ -43,6 +43,21 @@ class Section(Base):
     articles = relationship("Article", secondary=SectionArticles, backref="sections")
     subsections = relationship("Section")
 
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "moderated": self.moderated,
+            "premium": self.premium,
+            "parent_section_id": self.parent_section_id,
+            "subsections": self.serialize_subsections
+        }
+
+    @property
+    def serialize_subsections(self):
+        return [subsection.serialize for subsection in self.subsections]
+
 
 class Tag(Base):
     __tablename__ = "tags"
