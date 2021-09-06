@@ -11,11 +11,6 @@ UserModerators = Table("userModerators",
                        Column("user_id", Integer, ForeignKey("users.id")),
                        Column("section_id", Integer, ForeignKey("sections.id")))
 
-SectionArticles = Table("sectionArticles",
-                        Base.metadata,
-                        Column("section_id", Integer, ForeignKey("sections.id")),
-                        Column("article_id", Integer, ForeignKey("articles.id")))
-
 TagArticles = Table("tagArticles",
                     Base.metadata,
                     Column("tag_id", Integer, ForeignKey("tags.id")),
@@ -28,6 +23,15 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String)
     password = Column(String)
+    premium = Column(Boolean, default=False)
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "premium": self.premium
+        }
 
 
 class Section(Base):
@@ -40,7 +44,6 @@ class Section(Base):
     parent_section_id = Column(Integer, ForeignKey("sections.id"))
 
     moderators = relationship("User", secondary=UserModerators, backref="moderates")
-    articles = relationship("Article", secondary=SectionArticles, backref="sections")
     subsections = relationship("Section")
 
     @property
@@ -65,14 +68,39 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(64))
 
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+
 
 class Article(Base):
     __tablename__ = "articles"
 
     id = Column(Integer, primary_key=True, index=True)
     content = Column(String(2048))
+    author_id = Column(Integer, ForeignKey("users.id"))
+    section_id = Column(Integer, ForeignKey("sections.id"))
 
     tags = relationship("Tag", secondary=TagArticles, backref="articles")
+    user = relationship("User", backref="articles")
+    section = relationship("Section", backref="articles")
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "author_id": self.author_id,
+            "section_id": self.section_id,
+            "tags": self.serialize_tags
+        }
+
+    @property
+    def serialize_tags(self):
+        return [tag.serialize for tag in self.tags]
 
 
 class Comment(Base):
@@ -82,6 +110,23 @@ class Comment(Base):
     content = Column(String(256))
     response_id = Column(Integer, ForeignKey("comments.id"))
     article_id = Column(Integer, ForeignKey("articles.id"))
+    author_id = Column(Integer, ForeignKey("users.id"))
 
     article = relationship("Article", backref="comments")
+    user = relationship("User", backref="comments")
     responses = relationship("Comment")
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "response_id": self.response_id,
+            "article_id": self.article_id,
+            "author_id": self.author_id,
+            "responses": self.serialize_responses
+        }
+
+    @property
+    def serialize_responses(self):
+        return [response.serialize for response in self.responses]

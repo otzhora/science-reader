@@ -65,7 +65,7 @@ def load_user(db_session):
         g.user = None
     else:
         try:
-            g.user = db_session.query(User).filter(User.id == user_id).one()
+            g.user = db_session.query(User).filter(User.id == user_id).one().serialize
         except NoResultFound:
             return f"User with id {id} wasn't found in database", 500
 
