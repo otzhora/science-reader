@@ -4,6 +4,8 @@ from functools import wraps
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from reader_api.validation import handle_db_exception
+
 
 engine = create_engine(os.environ["DATABASE_URL"])
 Session = sessionmaker(bind=engine)
@@ -11,6 +13,7 @@ Session = sessionmaker(bind=engine)
 
 def connect_to_db(f):
     @wraps(f)
+    @handle_db_exception
     def inner(*args, **kwargs):
         db_session = Session()
         try:

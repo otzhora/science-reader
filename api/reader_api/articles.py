@@ -1,6 +1,5 @@
 from flask import Blueprint, g, request
 from flask.json import jsonify
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
 from reader_api.db import connect_to_db
@@ -20,22 +19,14 @@ def get_articles():
 
 @connect_to_db
 def get_all_articles(db_session):
-    try:
-        articles = db_session.query(Article).all()
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
+    articles = db_session.query(Article).all()
     return jsonify([article.serialize for article in articles])
 
 
 @connect_to_db
 def add_new_article(db_session):
     article_data = get_article_data()
-    try:
-        db_session.add(Article(**article_data))
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
+    db_session.add(Article(**article_data))
     return "Successful", 200
 
 
@@ -55,7 +46,4 @@ def get_article_by_id(article_id, db_session):
         article = db_session.query(Article).filter(Article.id == article_id).one()
     except NoResultFound:
         return f"Article with {article_id} does not exist", 400
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
     return jsonify(article.serialize)

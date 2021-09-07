@@ -1,6 +1,5 @@
 from flask import Blueprint, g, request
 from flask.json import jsonify
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
 from reader_api.db import connect_to_db
@@ -20,24 +19,16 @@ def get_articles(article_id):
 
 @connect_to_db
 def get_all_comments(article_id, db_session):
-    try:
-        articles = db_session.query(Comment) \
-            .filter((Comment.article_id == article_id) & (Comment.response_id.is_(None))) \
-            .all()
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
+    articles = db_session.query(Comment) \
+        .filter((Comment.article_id == article_id) & (Comment.response_id.is_(None))) \
+        .all()
     return jsonify([article.serialize for article in articles])
 
 
 @connect_to_db
 def add_new_comment(article_id, db_session):
     comment_data = get_comment_data(article_id)
-    try:
-        db_session.add(Comment(**comment_data))
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
+    db_session.add(Comment(**comment_data))
     return "Successful", 200
 
 
@@ -60,7 +51,4 @@ def get_article_by_id(article_id, comment_id, db_session):
             .one()
     except NoResultFound:
         return f"Article with {article_id} does not exist", 400
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
     return jsonify(comment.serialize)

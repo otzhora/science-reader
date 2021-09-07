@@ -1,7 +1,6 @@
 from functools import wraps
 from flask import Blueprint, session, request, g
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
 from reader_api.db import connect_to_db
@@ -22,18 +21,17 @@ def register(db_session):
     if not password:
         return 'Password is required', 400
 
-    try:
-        number_of_usernames = db_session.\
-            query(User.username).\
-            filter(User.username == username).count()
+    if username_exist(db_session, username):
+        return f"Username {username} is taken", 400
 
-        if number_of_usernames != 0:
-            return f"Username {username} is taken", 400
+    db_session.add(User(username=username, password=generate_password_hash(password)))
+    return "Registration is successfuly"
 
-        db_session.add(User(username=username, password=generate_password_hash(password)))
-        return "Registration is successfuly"
-    except SQLAlchemyError as e:
-        return f"Error has occured: {e}", 500
+
+def username_exist(db_session, username):
+    return db_session.\
+        query(User.username).\
+        filter(User.username == username).exists()
 
 
 @bp.route("/login", methods=["POST"])
@@ -44,16 +42,16 @@ def login(db_session):
 
     try:
         user = db_session.query(User).filter(User.username == username).one()
-
-        if not check_password_hash(user.password, password):
-            return "Invalid password", 400
-
-        session.clear()
-        session["user_id"] = user.id
-
-        return f"Logged in successfuly with username: {user.username}", 200
     except NoResultFound:
         return f"User with username {username} is not registered", 400
+
+    if not check_password_hash(user.password, password):
+        return "Invalid password", 400
+
+    session.clear()
+    session["user_id"] = user.id
+
+    return f"Logged in successfuly with username: {user.username}", 200
 
 
 @bp.before_app_request

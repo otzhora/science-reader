@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
 from reader_api.models import Section
@@ -12,11 +11,7 @@ bp = Blueprint("sections", __name__, url_prefix="/sections")
 @bp.route("/", methods=["GET"])
 @connect_to_db
 def index(db_session):
-    try:
-        sections = db_session.query(Section).filter(Section.parent_section_id.is_(None))
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
+    sections = db_session.query(Section).filter(Section.parent_section_id.is_(None))
     return jsonify([section.serialize for section in sections])
 
 
@@ -27,7 +22,4 @@ def get_section_info(section_id, db_session):
         section = db_session.query(Section).filter(Section.id == section_id).one()
     except NoResultFound:
         return f"Sections with id: {section_id} does not exist", 400
-    except SQLAlchemyError as e:
-        print(f"Error has occured: {e}")
-        return e, 500
     return jsonify(section.serialize)
