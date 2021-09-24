@@ -43,7 +43,8 @@ def get_article_data():
 @connect_to_db
 def get_article_by_id(article_id, db_session):
     try:
-        article = db_session.query(Article).filter(Article.id == article_id).one()
+        article = db_session.query(Article) \
+            .filter(Article.id == article_id).one()
     except NoResultFound:
         return f"Article with {article_id} does not exist", 400
     return jsonify(article.serialize)

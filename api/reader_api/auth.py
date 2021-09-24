@@ -24,7 +24,8 @@ def register(db_session):
     if username_exist(db_session, username):
         return f"Username {username} is taken", 400
 
-    db_session.add(User(username=username, password=generate_password_hash(password)))
+    db_session.add(User(username=username,
+                        password=generate_password_hash(password)))
     return "Registration is successfuly"
 
 
@@ -63,7 +64,9 @@ def load_user(db_session):
         g.user = None
     else:
         try:
-            g.user = db_session.query(User).filter(User.id == user_id).one().serialize
+            g.user = db_session.query(User) \
+                .filter(User.id == user_id) \
+                .one().serialize
         except NoResultFound:
             return f"User with id {id} wasn't found in database", 500
 

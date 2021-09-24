@@ -7,7 +7,7 @@ import reader_api.articles as articles
 import reader_api.comments as comments
 
 
-def create_app(config=None):
+def create_app():
     app = Flask(__name__)
     app.secret_key = "dev"
 

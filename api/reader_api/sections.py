@@ -11,7 +11,8 @@ bp = Blueprint("sections", __name__, url_prefix="/sections")
 @bp.route("/", methods=["GET"])
 @connect_to_db
 def index(db_session):
-    sections = db_session.query(Section).filter(Section.parent_section_id.is_(None))
+    sections = db_session.query(Section) \
+        .filter(Section.parent_section_id.is_(None))
     return jsonify([section.serialize for section in sections])
 
 
@@ -19,7 +20,8 @@ def index(db_session):
 @connect_to_db
 def get_section_info(section_id, db_session):
     try:
-        section = db_session.query(Section).filter(Section.id == section_id).one()
+        section = db_session.query(Section) \
+            .filter(Section.id == section_id).one()
     except NoResultFound:
         return f"Sections with id: {section_id} does not exist", 400
     return jsonify(section.serialize)

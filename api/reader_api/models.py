@@ -8,13 +8,21 @@ Base = declarative_base()
 
 UserModerators = Table("userModerators",
                        Base.metadata,
-                       Column("user_id", Integer, ForeignKey("users.id")),
-                       Column("section_id", Integer, ForeignKey("sections.id")))
+                       Column("user_id",
+                              Integer,
+                              ForeignKey("users.id")),
+                       Column("section_id",
+                              Integer,
+                              ForeignKey("sections.id")))
 
 TagArticles = Table("tagArticles",
                     Base.metadata,
-                    Column("tag_id", Integer, ForeignKey("tags.id")),
-                    Column("article_id", Integer, ForeignKey("articles.id")))
+                    Column("tag_id",
+                           Integer,
+                           ForeignKey("tags.id")),
+                    Column("article_id",
+                           Integer,
+                           ForeignKey("articles.id")))
 
 
 class User(Base):
@@ -43,7 +51,9 @@ class Section(Base):
     premium = Column(Boolean)
     parent_section_id = Column(Integer, ForeignKey("sections.id"))
 
-    moderators = relationship("User", secondary=UserModerators, backref="moderates")
+    moderators = relationship("User",
+                              secondary=UserModerators,
+                              backref="moderates")
     subsections = relationship("Section")
 
     @property

@@ -72,7 +72,8 @@ subsections = [
 @connect_to_db
 def init_db(db_session):
     click.echo("Initializing db")
-    oSections = {section["name"]: Section(**section) for section in initialSections}
+    oSections = {section["name"]: Section(**section)
+                 for section in initialSections}
 
     for oSection in oSections.values():
         db_session.add(oSection)
