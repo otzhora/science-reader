@@ -14,11 +14,10 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        cd api
         python -m pip install --upgrade pip
         pip install flake8
         if [ -f requirements_dev.txt ]; then pip install -r requirements_dev.txt; fi
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
-        flake8 . --count --max-line-length=127 --show-source --statistics --config=api/.flake8
+        flake8 . --count --max-line-length=127 --show-source --statistics --config=.flake8
