@@ -4,13 +4,27 @@
 
 ## How to run this
 
-First, run this
-
+First, create venv and install dependecies 
 ```
-cp .env.example .env
-docker-compose build
-docker-compose run api flask init-db
-docker-compose up 
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
 ```
 
-Now somewhere (hopefully on localhost) on port 5000 is cozy
+If `manage.py` is not executable you need to do
+```
+chmod 755 manage.py
+```
+
+Then build containers and initialize database 
+```
+./manage.py compose build
+./manage.py compose run migrations
+./manage.py create-initial-db
+./manage.py compose down
+```
+
+Now you are ready to run this
+```
+./manage.py compose up -d
+```
