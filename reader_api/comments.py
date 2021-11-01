@@ -19,10 +19,12 @@ def get_articles(article_id):
 
 @connect_to_db
 def get_all_comments(article_id, db_session):
-    articles = db_session.query(Comment) \
-        .filter((Comment.article_id == article_id) &
-                (Comment.response_id.is_(None))) \
+    articles = (
+        db_session.query(Comment)
+        .filter((Comment.article_id == article_id)
+                & (Comment.response_id.is_(None)))
         .all()
+    )
     return jsonify([article.serialize for article in articles])
 
 
@@ -39,7 +41,7 @@ def get_comment_data(article_id):
         "author_id": g.user["id"],
         "content": request.form["content"],
         "article_id": article_id,
-        "response_id": request.form.get("response_id")
+        "response_id": request.form.get("response_id"),
     }
 
 
@@ -47,10 +49,11 @@ def get_comment_data(article_id):
 @connect_to_db
 def get_article_by_id(article_id, comment_id, db_session):
     try:
-        comment = db_session.query(Comment) \
-            .filter((Comment.article_id == article_id) &
-                    (Comment.id == comment_id)) \
+        comment = (
+            db_session.query(Comment)
+            .filter((Comment.article_id == article_id) & (Comment.id == comment_id))
             .one()
+        )
     except NoResultFound:
         return f"Article with {article_id} does not exist", 400
     return jsonify(comment.serialize)

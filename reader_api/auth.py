@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import Blueprint, session, request, g
 from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy.sql import exists
 from sqlalchemy.orm.exc import NoResultFound
 
 from reader_api.db import connect_to_db
@@ -21,6 +22,8 @@ def register(db_session):
     if not password:
         return 'Password is required', 400
 
+    e = username_exist(db_session, username)
+    print(e)
     if username_exist(db_session, username):
         return f"Username {username} is taken", 400
 
@@ -31,8 +34,7 @@ def register(db_session):
 
 def username_exist(db_session, username):
     return db_session.\
-        query(User.username).\
-        filter(User.username == username).exists()
+        query(exists().where(User.username == username)).scalar()
 
 
 @bp.route("/login", methods=["POST"])

@@ -1,24 +1,20 @@
+import logging
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
 
-import os, sys
-from dotenv import load_dotenv
-
-
-BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(BASEDIR, ".env"))
-sys.path.append(BASEDIR)
-
+import reader_api.models
+from reader_api.config import Config
 
 config = context.config
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+config.set_main_option("sqlalchemy.url", Config.SQLALCHEMY_DATABASE_URI)
 fileConfig(config.config_file_name)
 
-import reader_api.models
+logging.warn(Config.SQLALCHEMY_DATABASE_URI)
+logging.warn(reader_api.models.User)
+
 
 target_metadata = reader_api.models.Base.metadata
 

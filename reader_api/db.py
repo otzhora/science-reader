@@ -1,13 +1,13 @@
-import os
 from functools import wraps
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from reader_api.config import Config
 from reader_api.validation import handle_db_exception
 
 
-engine = create_engine(os.environ["DATABASE_URL"])
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 Session = sessionmaker(bind=engine)
 
 

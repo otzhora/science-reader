@@ -1,0 +1,5 @@
+-r testing.txt
+
+flake8
+pytest
+docker-compose
