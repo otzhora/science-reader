@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import json
+import time
 import signal
 import subprocess
 from pathlib import Path
@@ -67,7 +68,7 @@ def docker_compose_command(subcommands=None):
 
     if not os.path.isfile(compose_file):
         raise ValueError(f"Compose file do not exist {compose_file}")
-    command = ["docker-compose", "-p", config, "-f", compose_file]
+    command = ["docker-compose", "-p", config, "-f", str(compose_file)]
     if subcommands:
         command.extend(subcommands.split(" "))
     return command
@@ -118,6 +119,30 @@ def create_initial_db():
 
     from reader_api.init_database import init_db
     init_db()
+
+
+@cli.command()
+@click.argument("filenames", nargs=-1)
+def test(filenames):
+    os.environ["API_CONFIG"] = "testing"
+    configure(os.getenv("API_CONFIG"))
+
+    command = docker_compose_command() + ["up", "-d"]
+    print(" ".join(command))
+    subprocess.call(command)
+
+    command = docker_compose_command() + ["logs", "postgres"]
+    logs = subprocess.check_output(command)
+    while "ready to accept connections" not in logs.decode("utf-8"):
+        time.sleep(0.1)
+        logs = subprocess.check_output(command)
+
+    command = ["pytest", "-svv", "--cov=application", "--cov-report=term-missing"]
+    command.extend(filenames)
+    subprocess.call(command)
+
+    command = docker_compose_command() + ["down"]
+    subprocess.call(command)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 [
     {
         "name": "FLASK_ENV",
-        "value": "development"
+        "value": "production"
     },
     {
         "name": "FLASK_CONFIG",
-        "value": "development"
+        "value": "testing"
     },
     {
         "name": "POSTGRES_DB",
@@ -21,7 +21,7 @@
     },
     {
         "name": "POSTGRES_PORT",
-        "value": "5432"
+        "value": "5433"
     },
     {
         "name": "POSTGRES_PASSWORD",
@@ -29,6 +29,6 @@
     },
     {
         "name": "APPLICATION_DB",
-        "value": "application"
+        "value": "test"
     }
 ]
