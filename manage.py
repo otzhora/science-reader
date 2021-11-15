@@ -137,7 +137,7 @@ def test(filenames):
         time.sleep(0.1)
         logs = subprocess.check_output(command)
 
-    command = ["pytest", "-svv", "--cov=application", "--cov-report=term-missing"]
+    command = ["pytest", "-svv", "--cov=reader_api", "--cov-report=term-missing"]
     command.extend(filenames)
     subprocess.call(command)
 
